@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Focus Roulette</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-6">
+
+  <div class="bg-white p-6 rounded shadow w-full max-w-md space-y-6">
+    <h1 class="text-xl font-bold text-center">Focus Roulette</h1>
+
+    <form id="taskForm" class="flex space-x-2">
+      <input type="text" id="taskInput" placeholder="Add a task" class="flex-1 border p-2 rounded" required />
+      <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Add</button>
+    </form>
+
+    <div>
+      <h2 class="font-semibold">Your Tasks:</h2>
+      <ul id="taskList" class="list-disc list-inside text-sm space-y-1 mt-2"></ul>
+    </div>
+
+    <button onclick="spinRoulette()" class="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700">Spin Roulette</button>
+
+    <div id="result" class="text-center text-lg font-semibold mt-4"></div>
+  </div>
+
+  <script>
+    const taskForm = document.getElementById('taskForm');
+    const taskInput = document.getElementById('taskInput');
+    const taskList = document.getElementById('taskList');
+    const result = document.getElementById('result');
+
+    taskForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const task = taskInput.value.trim();
+      if (!task) return;
+      const tasks = JSON.parse(localStorage.getItem('rouletteTasks') || '[]');
+      tasks.push(task);
+      localStorage.setItem('rouletteTasks', JSON.stringify(tasks));
+      taskInput.value = '';
+      renderTasks();
+    });
+
+    function renderTasks() {
+      const tasks = JSON.parse(localStorage.getItem('rouletteTasks') || '[]');
+      taskList.innerHTML = tasks.map((task, index) => 
+        `<li>${task} <button onclick="removeTask(${index})" class="ml-2 text-red-500 hover:underline text-xs">remove</button></li>`
+      ).join('');
+    }
+
+    function removeTask(index) {
+      const tasks = JSON.parse(localStorage.getItem('rouletteTasks') || '[]');
+      tasks.splice(index, 1);
+      localStorage.setItem('rouletteTasks', JSON.stringify(tasks));
+      renderTasks();
+    }
+
+    function spinRoulette() {
+      const tasks = JSON.parse(localStorage.getItem('rouletteTasks') || '[]');
+      if (tasks.length === 0) {
+        result.textContent = "No tasks to choose from!";
+        return;
+      }
+      const pick = tasks[Math.floor(Math.random() * tasks.length)];
+      result.textContent = `🎯 Your task: ${pick}`;
+    }
+
+    renderTasks();
+  </script>
+
+</body>
+</html>
